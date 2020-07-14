@@ -1,13 +1,11 @@
 # Main Class, web crawling occurs in this class
 import scrapy
-from ..items import CovidItem
+from covidAPI.items import CovidItem
 
 
 class ScrapData(scrapy.Spider):
     name = "scrape"  # Name of Spider
     start_urls = ['https://www.worldometers.info/coronavirus/']
-
-
 
     def parse(self, response):
         items = CovidItem().get_info()
@@ -34,5 +32,4 @@ class ScrapData(scrapy.Spider):
                 items["deaths"] = row.xpath("td[5]//text()").extract_first()
                 items["recovered"] = row.xpath("td[7]//text()").extract_first()
                 items["active_cases"] = row.xpath("td[9]//text()").extract_first()
-
                 yield items

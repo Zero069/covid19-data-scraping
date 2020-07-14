@@ -1,4 +1,6 @@
 import mysql.connector
+import sqlite3
+
 
 
 class CovidapiPipeline(object):
@@ -14,12 +16,16 @@ class CovidapiPipeline(object):
         self.cursor = self.connection.cursor()
 
     def create_table(self):
+        # self.cursor.execute("DROP TABLE IF EXISTS covid_data")
+        self.cursor.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
+
         self.cursor.execute("DROP TABLE IF EXISTS covid_data")
+
         self.cursor.execute("CREATE TABLE covid_data(country text,"
-                            "total-cases,"
-                            "total-deaths,"
-                            "total-recovered"
-                            "active-cases)")
+                            "total-cases INTEGER,"
+                            "total-deaths INTEGER,"
+                            "total-recovered INTEGER,"
+                            "active-cases INTEGER)")
 
     def process_item(self, item, spider):
         self.store_db(item)
@@ -35,7 +41,7 @@ class CovidapiPipeline(object):
         ))
         self.connection.commit()
 
-# connection = sqlite3.connect('COVID19_DATA.db')
+# connection = sqlite3.connect('covid_data.db')
 # curr = connection.cursor()
 #
 # curr.execute("CREATE TABLE COVID19(country text, "
