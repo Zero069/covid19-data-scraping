@@ -1,35 +1,46 @@
-import scrapy
-from covidAPI.covidAPI.
+import mysql.connector
 
 
+class CovidapiPipeline(object):
 
-class ScrapData(scrapy.Spider):
-    name = "scrape table"
-    start_urls = ['https://www.worldometers.info/coronavirus/']
+    def __init__(self):
+        self.create_connection()
 
-    def parse(self, response):
-        items = CovidItem()
+    def create_connection(self):
+        self.connection = mysql.connector.connect(host="localhost",
+                                                  user="root",
+                                                  passwd="BedDoorHairStairs3",
+                                                  database="covid_stats")
+        self.cursor = self.connection.cursor()
 
-        last_element_number = "215"  # Number assigned to country in table
-        table = response.xpath('//*[@id="main_table_countries_today"]/tbody[1]/tr[3]')
-        columns = table.xpath("//tr")
+    def create_table(self):
+        self.cursor.execute("DROP TABLE IF EXISTS covid_data")
+        self.cursor.execute("CREATE TABLE covid_data(country text,"
+                            "total-cases,"
+                            "total-deaths,"
+                            "total-recovered"
+                            "active-cases)")
 
-        for row in columns:
-            country = row.xpath("td[2]//text()").extract_first()
+    def process_item(self, item, spider):
+        self.store_db(item)
+        return item
 
-            if last_element_number == row.xpath("td[1]//text()").extract_first():
-                break
+    def store_db(self, item):
+        self.cursor.execute("insert into covid_data values (%s,%s,%s,%s,%s)", (
+            item["country"][0],
+            item["total_cases"][0],
+            item["deaths"][0],
+            item["recovered"][0],
+            item["active_cases"][0],
+        ))
+        self.connection.commit()
 
-            if "\n" == country:  # Skips elements with a null country value = no country
-                continue
-
-            else:
-                items["country"] = row.xpath("td[2]//text()").extract_first()
-                items["total_cases"] = row.xpath("td[3]//text()").extract_first()
-                items["deaths"] = row.xpath("td[5]//text()").extract_first()
-                items["recovered"] = row.xpath("td[7]//text()").extract_first()
-                items["active_cases"] = row.xpath("td[9]//text()").extract_first()
-
-                yield items
-
-
+# connection = sqlite3.connect('COVID19_DATA.db')
+# curr = connection.cursor()
+#
+# curr.execute("CREATE TABLE COVID19(country text, "
+#              "total_cases integer,"
+#              "total_cured integer)")
+#
+# curr.execute("INSERT INTO COVID19 VALUES('Pakistan', 0, 200)")
+# connection.commit()
