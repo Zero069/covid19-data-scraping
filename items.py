@@ -1,16 +1,10 @@
-from scrapy.item import Field
+
+import scrapy
 
 
-class CovidItem:
-
-    def __init__(self):
-        self.dict = {
-            "country": Field(),
-            "total_cases": Field(),
-            "deaths": Field(),
-            "recovered": Field(),
-            "active_cases": Field()
-        }
-
-    def get_info(self):
-        return self.dict
+class CovidItem(scrapy.Item):
+    country = scrapy.Field()
+    total_cases = scrapy.Field()
+    deaths = scrapy.Field()
+    recovered = scrapy.Field()
+    active_cases = scrapy.Field()
